@@ -1,0 +1,347 @@
+﻿
+
+@model BusinessLayer.Entity.AggCost_Production
+
+@{
+    ViewBag.Title = "Standard Cost Of Production";
+    Layout = "~/Views/Shared/_MainDashboard.cshtml";
+}
+
+
+<style>
+    .table thead th {
+        font-weight: 400;
+        font-size: 15px;
+        border-bottom: 0;
+        padding-left: 1rem;
+    }
+
+    .table td {
+        font-weight: 400;
+        font-size: 11px;
+        border-bottom: 0;
+        padding-left: 1rem;
+    }
+
+    .table td, .table th {
+        padding: 0.25rem;
+        vertical-align: top;
+        border-top: 1px solid #dee2e6;
+    }
+
+    .table td, .table th {
+        padding: 0.25rem;
+        vertical-align: top;
+        border-top: 1px solid #dee2e6;
+    }
+
+    .table .form-control {
+        height: 35px;
+    }
+</style>
+
+@using (Html.BeginForm("AggCostProduction_Entry", "AggCostReport", FormMethod.Post, new { @id = "frmAggCostProduction_Entry", enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    Html.RenderPartial("_Alerts");
+
+    <div class="pd-20 card-box mb-30">
+        <div class="clearfix">
+            <div style="text-align:center">
+                <h4 class="text-blue h4">Standard Cost Of Production</h4>
+            </div>
+        </div>
+
+                <div class="form-group row">
+                    <label class="col-sm-12 col-md-2 col-form-label">Location</label>
+                    <div class="col-sm-12 col-md-4">
+                        @Html.DropDownListFor(x => x.LocationCode, Model.Location_List, "Select Location", new { @class = "custom-select2 form-control", @id = "ddlLocation", @data_placeholder = "Select Location", @style = "width: 100%;" })
+                      
+                          @Html.ValidationMessageFor(x => x.LocationCode, "", new { @id = "spnErr_Location" })
+                    </div>
+
+                    <label class="col-sm-12 col-md-2 col-form-label">Product</label>
+                    <div class="col-sm-12 col-md-4">
+                        @Html.DropDownListFor(x => x.ProductCode, Model.PRODUCT_LIST, "Select Product", new { @class = "custom-select2 form-control", @id = "ddlProduct", @data_placeholder = "Select Product", @style = "width: 100%;" })
+                        @*@Html.DropDownListFor(x => x.ProductCode, new SelectList(Enumerable.Empty<SelectListItem>(), "Value", "Text"), "Select Product", new { @class = "custom-select2 form-control", @id = "ddlProduct", @data_placeholder = "Select Product", @style = "width: 100%;" })*@
+
+                              @Html.ValidationMessageFor(x => x.ProductCode, "", new { @id = "spnErr_ddlProduct" })
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-12 col-md-2 col-form-label">Plant/Mine</label>
+                    <div class="col-sm-12 col-md-4">
+                        @Html.DropDownListFor(x => x.ProductMine_code, Model.PLANT_LIST, "ALL", new { @class = "custom-select2 form-control", @id = "ddlPlant", @data_placeholder = "Select Plant/Mine", @style = "width: 100%;" })
+                        @*@Html.DropDownListFor(x => x.ProductMine_code, new SelectList(Enumerable.Empty<SelectListItem>(), "Value", "Text"), "Select Plant/Mine", new { @class = "custom-select2 form-control", @id = "ddlPlant", @data_placeholder = "Select  Plant/Mine", @style = "width: 100%;" })*@
+
+                          @Html.ValidationMessageFor(x => x.ProductMine_code, "", new { @id = "spnErr_ddlPlant" })
+                    </div>
+                    <label class="col-sm-12 col-md-2 col-form-label">Effective Date</label>
+                    <div class="col-sm-12 col-md-4">
+                        @Html.TextBoxFor(x => x.EFFECTIVE_DATE, new { @class = "form-control", @id = "txtEffectiveDate", @autocomplete = "off", @readonly = true })
+                    </div>
+                    </div>
+
+     
+        <div class="table-responsive">
+            <table class="table table-bordered" style="font-size: 10px; padding: 0px; margin: 0px; min-width: 600px;" id="tblList">
+                <thead>
+                    <tr>
+                        <th style="width:395px; text-align:center;">Particulars</th>
+                        <th style="width:5px; text-align:center;">Standard Cost Per M.T.</th>
+                    </tr>
+                </thead>
+          
+                <tbody id="tbodyList">
+                    @{
+    var groupedData = Model.AggCost_Production_Dtl_List
+        .GroupBy(item => item.PCG_ID)
+        .ToList();
+
+    foreach (var group in groupedData)
+    {
+        var pcgId = group.Key;
+        var items = group.ToList();
+
+            <tr>
+                <td data-title="Particulars">
+
+                       @Html.TextBoxFor(model => items[0].PCG_NAME, new { @class = "bold-header", @id = "txtPCG_NAME_" + pcgId, @autocomplete = "off", @readonly = true })
+                    <style>
+                        .bold-header {
+                            font-weight: bold;
+                        }
+                    </style>
+                     @Html.HiddenFor(model => items[0].PCG_ID, new { @class = "form-control", @id = "hdnPCG_ID_" + pcgId })
+                </td>
+                @*<td data-title="Standard Cost Per M.T.">
+                    @Html.TextBoxFor(model => items[0].StandardCost, new { @class = "form-control", @id = "txtCONDITION_" + pcgId, @data_placeholder = "Enter Condition", @autocomplete = "off" })
+                    <span id="spnErr_txtCONDITION_@pcgId" class="field-validation-error"></span>
+                </td>*@
+            </tr>
+
+        foreach (var item in items)
+        {
+            <tr>
+                <td data-title="Particulars">
+                    @Html.TextBoxFor(model => item.PCSG_NAME, new { @class = "form-control cal numeric", @id = "txtPCSG_NAME_" + item.PCSG_ID, @autocomplete = "off", @readonly = true })
+                    @Html.HiddenFor(model => item.PCSG_ID, new { @class = "form-control", @id = "hdnPCSG_ID_" + item.PCSG_ID })
+                </td>
+                <td data-title="Standard Cost Per M.T.">
+                    @Html.TextBoxFor(model => item.StandardCost, new { @class = "form-control", @id = "txtCONDITION_" + item.PCSG_ID, @data_placeholder = "Enter Condition", @autocomplete = "off" })
+                    <span id="spnErr_txtCONDITION_@item.PCSG_ID" class="field-validation-error"></span>
+                </td>
+            </tr>
+        }
+    }
+                    }
+                </tbody>
+
+            </table>
+        </div>
+
+
+        <div id="divPartial"></div>
+        <div class="form-group row">
+            <div class="col-md-12" style="padding-top:5px; padding-bottom:15px; padding-right:13px;text-align:center;">
+                <input type="submit" class="btn btn-success" value="Save" name="Save" style="width:auto;" id="btnSubmit" />
+                @*<input type="submit" class="btn btn-warning" value="Update" name="Update" style="width: auto;" id="btnUpdate" />
+                <input type="reset" class="btn btn-danger" value="Reset" style="width:auto;" id="btnReset" />
+                <input type="submit" class="btn btn-info" value="Lock" name="Lock" style="width: auto; " id="btnLock" />
+                <input type="button" class="btn btn-warning" value="Back" name="Back" style="width: auto;" id="btnBack" />*@
+                @Html.HiddenFor(X => X.hdnAGGCOSTPROD_DATE, new { @id = "hdnAGGCOSTPROD_DATE" })
+            </div>
+        </div>
+
+    </div>
+
+
+}
+
+@*<script src="~/assets/js/jquery-2.1.4.min.js"></script>
+<script src="~/Scripts/Custom/customValidation.js"></script>
+
+
+<script>
+    $(document).ready(function () {
+        alert("hiiii");
+        $("#ddlLocation").change(function (e) {
+            bindProduct();
+            bindPlant();
+        });
+
+        function bindProduct() {
+            $("#ddlProduct").empty().trigger("chosen:updated");
+            if ($("#ddlLocation option:selected").val() == "") {
+                $('#spnErr_Location').text('Please Select Location').show();
+                e.preventDefault();
+                return false;
+            } else {
+                $('#spnErr_Location').text('').hide();
+            }
+
+            var LocationCode = $("#ddlLocation option:selected").val() == '' ? '0' : $("#ddlLocation option:selected").val();
+            var str = '<option value="0">Selected Location</option>';
+            alert(LocationCode);
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetLocationProductList", "Common")',
+                data: { LocationCode: LocationCode },
+                dataType: "json",
+                async: false,
+                success: function (data, textStatus, xhr) {
+                    alert(data);
+                    if (data.length > 0) {
+                        for (var i = 0; i < data.length; i++) {
+                            str += '<option value=' + data[i].ProductMine_code + '>' + data[i].Long_Name + '</option>';
+                        }
+                        $("#ddlProduct").empty().append(str);
+                        $("#ddlProduct").trigger("chosen:updated");
+                    } else {
+                        $("#ddlProduct").empty().append(str);
+                        $("#ddlProduct").trigger("chosen:updated");
+                    }
+                },
+                error: function (result) {
+                    alert("Error");
+                }
+            });
+        }
+
+        function bindPlant(e) {
+            $("#ddlPlant").empty().trigger("chosen:updated");
+            if ($("#ddlProduct option:selected").val() == "") {
+                $('#spnErr_Location').text('Please Select Product').show();
+                e.preventDefault();
+                return false;
+            } else {
+                $('#spnErr_Location').text('').hide();
+            }
+
+            var ProductCode = $("#ddlProduct option:selected").val() == '' ? '0' : $("#ddlProduct option:selected").val();
+            var str = '<option value="0">Selected Location</option>';
+            alert(ProductCode);
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetLocationPlantList", "Common")',
+                data: { ProductCode: ProductCode },
+                dataType: "json",
+                async: false,
+                success: function (data, textStatus, xhr) {
+                    alert(data);
+                    if (data.length > 0) {
+                        for (var i = 0; i < data.length; i++) {
+                            str += '<option value=' + data[i].ProductCode + '>' + data[i].productName + '</option>';
+                        }
+                        $("#ddlPlant").empty().append(str);
+                        $("#ddlPlant").trigger("chosen:updated");
+                    } else {
+                        $("#ddlPlant").empty().append(str);
+                        $("#ddlPlant").trigger("chosen:updated");
+                    }
+                },
+                error: function (result) {
+                    alert("Error");
+                }
+            });
+        }
+    });
+</script>*@
+
+
+
+@*<script>
+    $(document).ready(function () {
+        alert("hiiii");
+        $("#ddlLocation").change(function(e)
+        {
+            bindProduct();
+            bindPlant();
+        });
+
+
+        function bindProduct() {
+            $("ddlProduct").empty().trigger("chosen:updated");
+            if ($("ddlLocation option:selected").val() ==""){
+                $('#spnErr_Location').text('Please Select Location').show();
+                e.preventDefault();
+                return false;
+            }
+            else {
+                $('#spnErr_Location').text('').hide();
+            }
+
+            var LocationCode = $("#ddlLocation option:selected").val() == '' ? '0' : $("ddlLocation option:selected").val();
+            var str = '<option value="0">Selected Location</option>';
+            alert(LocationCode);
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetLocationProductList","Common")',
+                data: { LocationCode: LocationCode },
+                dataType: "json",
+                async: false,
+                success: function (data, textStatus, xhr) {
+                    alert(data);
+                    if (data.length > 0) {
+                        for (var i = 0; i < data.length; i++) {
+                            str += '<option value=' + data[i].ProductMine_code + '>' + data[i].Long_Name + '</option>';
+                        }
+                        $("ddlProduct").empty().append(str);
+                        $("ddlProduct").trigger("chosen:updated");
+                    }
+                    else {
+                        $("ddlProduct").empty().append(str);
+                        $("ddlProduct").trigger("chosen:updated");
+                    }
+                },
+                error: function (result) {
+                    alert("Error");
+                }
+            });
+        }
+       
+
+
+        function bindPlant() {
+            $("ddlPlant").empty().trigger("chosen:updated");
+            if ($("ddlLocation option:selected").val() == "") {
+                $('#spnErr_Location').text('Please Select Product').show();
+                e.preventDefault();
+                return false;
+            }
+            else {
+                $('#spnErr_Location').text('').hide();
+            }
+
+            var LocationCode = $("#ddlLocation option:selected").val() == '' ? '0' : $("ddlLocation option:selected").val();
+            var str = '<option value="0">Selected Location</option>';
+            alert(LocationCode);
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetLocationPlantList","Common")',
+                data: { LocationCode: LocationCode },
+                dataType: "json",
+                async: false,
+                success: function (data, textStatus, xhr) {
+                    alert(data);
+                    if (data.length > 0) {
+                        for (var i = 0; i < data.length; i++) {
+                            str += '<option value=' + data[i].ProductCode + '>' + data[i].productName + '</option>';
+                        }
+                        $("ddlPlant").empty().append(str);
+                        $("ddlPlant").trigger("chosen:updated");
+                    }
+                    else {
+                        $("ddlPlant").empty().append(str);
+                        $("ddlPlant").trigger("chosen:updated");
+                    }
+                },
+                error: function (result) {
+                    alert("Error");
+                }
+            });
+        }
+    });
+</script>*@
+
